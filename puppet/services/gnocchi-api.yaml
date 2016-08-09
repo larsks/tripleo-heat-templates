@@ -33,6 +33,11 @@ parameters:
     type: string
     default: 'regionOne'
     description: Keystone region for endpoint
+  GnocchiApiLoggingSource:
+    type: json
+    default:
+      tag: openstack.gnocchi.api
+      path: /var/log/gnocchi/app.log
 
 resources:
   GnocchiServiceBase:
@@ -47,6 +52,9 @@ outputs:
     description: Role data for the Gnocchi role.
     value:
       service_name: gnocchi_api
+      logging_source: {get_param: GnocchiApiLoggingSource}
+      logging_groups:
+        - gnocchi
       config_settings:
         map_merge:
           - get_attr: [GnocchiServiceBase, role_data, config_settings]

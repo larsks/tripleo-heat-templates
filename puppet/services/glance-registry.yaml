@@ -30,12 +30,20 @@ parameters:
     default: 0
     description: Number of workers for Glance service.
     type: number
+  GlanceRegistryLoggingSource:
+    type: json
+    default:
+      tag: openstack.glance.registry
+      path: /var/log/glance/registry.log
 
 outputs:
   role_data:
     description: Role data for the Glance Registry role.
     value:
       service_name: glance_registry
+      logging_source: {get_param: GlanceRegistryLoggingSource}
+      logging_groups:
+        - glance
       config_settings:
         glance::registry::database_connection:
           list_join:

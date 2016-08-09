@@ -30,6 +30,11 @@ parameters:
     type: string
     default: 'regionOne'
     description: Keystone region for endpoint
+  NovaApiLoggingSource:
+    type: json
+    default:
+      tag: openstack.nova.api
+      path: /var/log/nova/nova-api.log
 
 resources:
   NovaBase:
@@ -44,6 +49,9 @@ outputs:
     description: Role data for the Nova API service.
     value:
       service_name: nova_api
+      logging_source: {get_param: NovaApiLoggingSource}
+      logging_groups:
+        - nova
       config_settings:
         map_merge:
           - get_attr: [NovaBase, role_data, config_settings]

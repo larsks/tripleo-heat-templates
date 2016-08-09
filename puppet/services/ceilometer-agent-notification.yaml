@@ -18,6 +18,11 @@ parameters:
     description: Mapping of service endpoint -> protocol. Typically set
                  via parameter_defaults in the resource registry.
     type: json
+  CeilometerAgentNotificationLoggingSource:
+    type: json
+    default:
+      tag: openstack.ceilometer.agent.notification
+      path: /var/log/ceilometer/agent-notification.log
 
 
 resources:
@@ -33,6 +38,9 @@ outputs:
     description: Role data for the Ceilometer Notification Agent role.
     value:
       service_name: ceilometer_agent_notification
+      logging_source: {get_param: CeilometerAgentNotificationLoggingSource}
+      logging_groups:
+        - ceilometer
       config_settings:
         get_attr: [CeilometerServiceBase, role_data, config_settings]
       step_config: |

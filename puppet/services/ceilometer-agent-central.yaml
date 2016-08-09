@@ -22,6 +22,11 @@ parameters:
     description: The password for the redis service account.
     type: string
     hidden: true
+  CeilometerAgentCentralLoggingSource:
+    type: json
+    default:
+      tag: openstack.ceilometer.agent.central
+      path: /var/log/ceilometer/central.log
 
 resources:
   CeilometerServiceBase:
@@ -36,6 +41,9 @@ outputs:
     description: Role data for the Ceilometer Central Agent role.
     value:
       service_name: ceilometer_agent_central
+      logging_source: {get_param: CeilometerAgentCentralLoggingSource}
+      logging_groups:
+        - ceilometer
       config_settings:
         map_merge:
           - get_attr: [CeilometerServiceBase, role_data, config_settings]

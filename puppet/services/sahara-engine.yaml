@@ -18,6 +18,11 @@ parameters:
     description: Mapping of service endpoint -> protocol. Typically set
                  via parameter_defaults in the resource registry.
     type: json
+  SaharaEngineLoggingSource:
+    type: json
+    default:
+      tag: openstack.sahara.engine
+      path: /var/log/sahara/sahara-engine.log
 
 resources:
   SaharaBase:
@@ -32,6 +37,9 @@ outputs:
     description: Role data for the Sahara Engine role.
     value:
       service_name: sahara_engine
+      logging_source: {get_param: SaharaApiLoggingSource}
+      logging_groups:
+        - sahara
       config_settings:
         map_merge:
           - get_attr: [SaharaBase, role_data, config_settings]

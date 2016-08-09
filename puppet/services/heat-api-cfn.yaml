@@ -30,6 +30,11 @@ parameters:
     type: string
     default: 'regionOne'
     description: Keystone region for endpoint
+  HeatApiCfnLoggingSource:
+    type: json
+    default:
+      tag: openstack.heat.api.cfn
+      path: /var/log/heat/heat-api-cfn.log
 
 resources:
   HeatBase:
@@ -44,6 +49,9 @@ outputs:
     description: Role data for the Heat CloudFormation API role.
     value:
       service_name: heat_api_cfn
+      logging_source: {get_param: HeatApiCfnLoggingSource}
+      logging_groups:
+        - heat
       config_settings:
         map_merge:
           - get_attr: [HeatBase, role_data, config_settings]

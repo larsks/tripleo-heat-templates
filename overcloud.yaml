@@ -115,6 +115,7 @@ parameters:
 
   ControllerServices:
     default:
+      - OS::TripleO::Services::FluentdClient
       - OS::TripleO::Services::CephMon
       - OS::TripleO::Services::CephExternal
       - OS::TripleO::Services::CinderApi
@@ -185,6 +186,7 @@ parameters:
 
   ComputeServices:
     default:
+      - OS::TripleO::Services::FluentdClient
       - OS::TripleO::Services::CephClient
       - OS::TripleO::Services::CephExternal
       - OS::TripleO::Services::Timezone
@@ -417,6 +419,8 @@ resources:
           NodeIndex: '%index%'
           ServiceConfigSettings: {get_attr: [ControllerServiceChain, role_data, config_settings]}
           ServiceNames: {get_attr: [ControllerServiceChain, role_data, service_names]}
+          LoggingSources: {get_attr: [ControllerServiceChain, role_data, logging_sources]}
+          LoggingGroups: {get_attr: [ControllerServiceChain, role_data, logging_groups]}
 
   ComputeServiceChain:
     type: OS::TripleO::Services
@@ -448,6 +452,8 @@ resources:
           NodeIndex: '%index%'
           ServiceConfigSettings: {get_attr: [ComputeServiceChain, role_data, config_settings]}
           ServiceNames: {get_attr: [ComputeServiceChain, role_data, service_names]}
+          LoggingSources: {get_attr: [ComputeServiceChain, role_data, logging_sources]}
+          LoggingGroups: {get_attr: [ComputeServiceChain, role_data, logging_groups]}
 
   BlockStorageServiceChain:
     type: OS::TripleO::Services

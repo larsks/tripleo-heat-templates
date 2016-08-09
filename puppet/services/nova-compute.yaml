@@ -40,6 +40,11 @@ parameters:
     default: ''
     description: Libvirt VIF driver configuration for the network
     type: string
+  NovaComputeLoggingSource:
+    type: json
+    default:
+      tag: openstack.nova.compute
+      path: /var/log/nova/nova-compute.log
 
 resources:
   NovaBase:
@@ -54,6 +59,9 @@ outputs:
     description: Role data for the Nova Compute service.
     value:
       service_name: nova_compute
+      logging_source: {get_param: NovaComputeLoggingSource}
+      logging_groups:
+        - nova
       config_settings:
         map_merge:
           - get_attr: [NovaBase, role_data, config_settings]

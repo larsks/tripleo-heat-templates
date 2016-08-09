@@ -34,6 +34,11 @@ parameters:
       - allowed_values:
         - legacy
         - dvr_snat
+  NeutronL3AgentLoggingSource:
+    type: json
+    default:
+      tag: openstack.neutron.agent.l3
+      path: /var/log/neutron/l3-agent.log
 
 resources:
 
@@ -49,6 +54,9 @@ outputs:
     description: Role data for the Neutron L3 agent service.
     value:
       service_name: neutron_l3
+      logging_source: {get_param: NeutronL3AgentLoggingSource}
+      logging_groups:
+        - neutron
       config_settings:
         map_merge:
           - get_attr: [NeutronBase, role_data, config_settings]

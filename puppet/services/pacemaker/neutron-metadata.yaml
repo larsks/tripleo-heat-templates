@@ -33,6 +33,8 @@ outputs:
     description: Role data for the Neutron Metadata role.
     value:
       service_name: neutron_metadata
+      logging_source: {get_attr: [NeutronMetadataBase, role_data, logging_source]}
+      logging_groups: {get_attr: [NeutronMetadataBase, role_data, logging_groups]}
       config_settings:
         map_merge:
           - get_attr: [NeutronMetadataBase, role_data, config_settings]

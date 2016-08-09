@@ -26,6 +26,11 @@ parameters:
     description: Name of bridge used for external network traffic.
     type: string
     default: 'br-ex'
+  NeutronL3ComputeAgentLoggingSource:
+    type: json
+    default:
+      tag: openstack.neutron.agent.l3-compute
+      path: /var/log/neutron/l3-agent.log
 
 resources:
 
@@ -41,6 +46,9 @@ outputs:
     description: Role data for DVR L3 Agent on Compute Nodes
     value:
       service_name: neutron_l3_compute_dvr
+      logging_source: {get_param: NeutronL3ComputeAgentLoggingSource}
+      logging_groups:
+        - neutron
       config_settings:
         map_merge:
           - get_attr: [NeutronBase, role_data, config_settings]

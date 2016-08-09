@@ -22,6 +22,11 @@ parameters:
     default: []
     description: List of scheduler available filters
     type: comma_delimited_list
+  NovaSchedulerLoggingSource:
+    type: json
+    default:
+      tag: openstack.nova.scheduler
+      path: /var/log/nova/nova-scheduler.log
 
 resources:
   NovaBase:
@@ -36,6 +41,9 @@ outputs:
     description: Role data for the Nova Scheduler service.
     value:
       service_name: nova_scheduler
+      logging_source: {get_param: NovaSchedulerLoggingSource}
+      logging_groups:
+        - nova
       config_settings:
         map_merge:
           - get_attr: [NovaBase, role_data, config_settings]

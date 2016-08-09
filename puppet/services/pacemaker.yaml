@@ -18,12 +18,25 @@ parameters:
     description: Mapping of service endpoint -> protocol. Typically set
                  via parameter_defaults in the resource registry.
     type: json
+  PacemakerLoggingSource:
+    type: json
+    default:
+      tag: system.pacemaker
+      path: /var/log/pacemaker.log,/var/log/cluster/corosync.log
+      format: >-
+        /^(?<time>[^ ]*\s*[^ ]* [^ ]*)
+        \[(?<pid>[^ ]*)\]
+        (?<host>[^ ]*)
+        (?<message>.*)$/
 
 outputs:
   role_data:
     description: Role data for the Pacemaker role.
     value:
       service_name: pacemaker
+      logging_groups:
+        - haclient
+      logging_source: {get_param: PacemakerLoggingSource}
       config_settings:
         pacemaker::corosync::cluster_name: 'tripleo_cluster'
         pacemaker::corosync::manage_fw: false

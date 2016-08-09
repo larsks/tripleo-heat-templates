@@ -46,6 +46,11 @@ parameters:
     type: string
     default: 'regionOne'
     description: Keystone region for endpoint
+  NeutronApiLoggingSource:
+    type: json
+    default:
+      tag: openstack.neutron.api
+      path: /var/log/neutron/server.log
 
 resources:
 
@@ -61,6 +66,9 @@ outputs:
     description: Role data for the Neutron Server agent service.
     value:
       service_name: neutron_api
+      logging_source: {get_param: NeutronApiLoggingSource}
+      logging_groups:
+        - neutron
       config_settings:
         map_merge:
           - get_attr: [NeutronBase, role_data, config_settings]

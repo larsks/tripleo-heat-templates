@@ -22,6 +22,11 @@ parameters:
     default: 0
     description: Number of workers for Heat service.
     type: number
+  HeatApiCloudwatchLoggingSource:
+    type: json
+    default:
+      tag: openstack.heat.api.cloudwatch
+      path: /var/log/heat/heat-api-cloudwatch.log
 
 resources:
   HeatBase:
@@ -36,6 +41,9 @@ outputs:
     description: Role data for the Heat Cloudwatch API role.
     value:
       service_name: heat_api_cloudwatch
+      logging_source: {get_param: HeatApiCloudwatchLoggingSource}
+      logging_groups:
+        - heat
       config_settings:
         map_merge:
           - get_attr: [HeatBase, role_data, config_settings]

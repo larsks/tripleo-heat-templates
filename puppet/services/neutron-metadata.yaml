@@ -30,6 +30,11 @@ parameters:
     description: The password for the neutron service and db account, used by neutron agents.
     type: string
     hidden: true
+  NeutronMetadataAgentLoggingSource:
+    type: json
+    default:
+      tag: openstack.neutron.agent.metadata
+      path: /var/log/neutron/metadata-agent.log
 
 resources:
 
@@ -45,6 +50,9 @@ outputs:
     description: Role data for the Neutron Metadata agent service.
     value:
       service_name: neutron_metadata
+      logging_source: {get_param: NeutronMetadataAgentLoggingSource}
+      logging_groups:
+        - neutron
       config_settings:
         map_merge:
           - get_attr: [NeutronBase, role_data, config_settings]

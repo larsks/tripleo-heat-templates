@@ -53,6 +53,11 @@ parameters:
     description: |
       Enable ARP responder feature in the OVS Agent.
     type: boolean
+  NeutronOpenVswitchAgentLoggingSource:
+    type: json
+    default:
+      tag: openstack.neutron.agent.openvswitch
+      path: /var/log/neutron/openvswitch-agent.log
 
 resources:
 
@@ -68,6 +73,9 @@ outputs:
     description: Role data for the Neutron OVS agent service.
     value:
       service_name: neutron_ovs_agent
+      logging_source: {get_param: NeutronOpenVswitchAgentLoggingSource}
+      logging_groups:
+        - neutron
       config_settings:
         map_merge:
           - get_attr: [NeutronBase, role_data, config_settings]

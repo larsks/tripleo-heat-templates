@@ -31,6 +31,12 @@ parameters:
     default: false
     description: If True, DHCP always provides metadata route to VM.
     type: boolean
+    type: string
+  NeutronDhcpAgentLoggingSource:
+    type: json
+    default:
+      tag: openstack.neutron.agent.dhcp
+      path: /var/log/neutron/dhcp-agent.log
 
 resources:
 
@@ -46,6 +52,9 @@ outputs:
     description: Role data for the Neutron DHCP agent service.
     value:
       service_name: neutron_dhcp
+      logging_source: {get_param: NeutronDhcpAgentLoggingSource}
+      logging_groups:
+        - neutron
       config_settings:
         map_merge:
           - get_attr: [NeutronBase, role_data, config_settings]

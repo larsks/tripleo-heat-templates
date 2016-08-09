@@ -73,12 +73,20 @@ parameters:
     type: string
     default: 'regionOne'
     description: Keystone region for endpoint
+  GlanceApiLoggingSource:
+    type: json
+    default:
+      tag: openstack.glance.api
+      path: /var/log/glance/api.log
 
 outputs:
   role_data:
     description: Role data for the Glance API role.
     value:
       service_name: glance_api
+      logging_source: {get_param: GlanceApiLoggingSource}
+      logging_groups:
+        - glance
       config_settings:
         glance::api::database_connection:
           list_join:

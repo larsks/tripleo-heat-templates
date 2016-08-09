@@ -40,6 +40,11 @@ parameters:
     type: string
     hidden: true
     default: ''
+  HeatEngineLoggingSource:
+    type: json
+    default:
+      tag: openstack.heat.engine
+      path: /var/log/heat/heat-engine.log
 
 resources:
   HeatBase:
@@ -54,6 +59,9 @@ outputs:
     description: Role data for the Heat Engine role.
     value:
       service_name: heat_engine
+      logging_source: {get_param: HeatEngineLoggingSource}
+      logging_groups:
+        - heat
       config_settings:
         map_merge:
           - get_attr: [HeatBase, role_data, config_settings]

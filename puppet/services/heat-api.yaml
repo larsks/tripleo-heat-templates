@@ -30,6 +30,11 @@ parameters:
     type: string
     default: 'regionOne'
     description: Keystone region for endpoint
+  HeatApiLoggingSource:
+    type: json
+    default:
+      tag: openstack.heat.api
+      path: /var/log/heat/heat-api.log
 
 resources:
   HeatBase:
@@ -44,6 +49,9 @@ outputs:
     description: Role data for the Heat API role.
     value:
       service_name: heat_api
+      logging_source: {get_param: HeatApiLoggingSource}
+      logging_groups:
+        - heat
       config_settings:
         map_merge:
           - get_attr: [HeatBase, role_data, config_settings]
