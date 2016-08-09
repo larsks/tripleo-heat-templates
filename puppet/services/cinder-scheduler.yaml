@@ -9,6 +9,12 @@ parameters:
     description: Mapping of service endpoint -> protocol. Typically set
                  via parameter_defaults in the resource registry.
     type: json
+  CinderSchedulerLoggingSource:
+    type: json
+    description: Fluentd logging configuration for cinder-scheduler.
+    default:
+      tag: openstack.cinder.scheduler
+      path: /var/log/cinder/cinder-scheduler.log
 
 resources:
 
@@ -22,6 +28,7 @@ outputs:
     description: Role data for the Cinder Scheduler role.
     value:
       service_name: cinder_scheduler
+      logging_source: {get_param: CinderSchedulerLoggingSource}
       config_settings:
         map_merge:
           - get_attr: [CinderBase, role_data, config_settings]

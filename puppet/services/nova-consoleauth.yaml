@@ -9,6 +9,12 @@ parameters:
     description: Mapping of service endpoint -> protocol. Typically set
                  via parameter_defaults in the resource registry.
     type: json
+  NovaConsoleAuthLoggingSource:
+    type: json
+    description: Fluentd logging configuration for nova-consoleauth.
+    default:
+      tag: openstack.nova.consoleauth
+      path: /var/log/nova/nova-consoleauth.log
 
 resources:
   NovaBase:
@@ -21,6 +27,7 @@ outputs:
     description: Role data for the Nova Consoleauth service.
     value:
       service_name: nova_consoleauth
+      logging_source: {get_param: NovaConsoleAuthLoggingSource}
       config_settings:
         get_attr: [NovaBase, role_data, config_settings]
       step_config: |

@@ -205,6 +205,7 @@ parameters:
       - OS::TripleO::Services::AodhListener
       - OS::TripleO::Services::SaharaApi
       - OS::TripleO::Services::SaharaEngine
+      - OS::TripleO::Services::FluentdClient
     description: A list of service resources (configured in the Heat
                  resource_registry) which represent nested stacks
                  for each service that should get installed on the Controllers.
@@ -225,6 +226,7 @@ parameters:
       - OS::TripleO::Services::ComputeCeilometerAgent
       - OS::TripleO::Services::ComputeNeutronL3Agent
       - OS::TripleO::Services::ComputeNeutronMetadataAgent
+      - OS::TripleO::Services::FluentdClient
     description: A list of service resources (configured in the Heat
                  resource_registry) which represent nested stacks
                  for each service that should get installed on the Compute Nodes.
@@ -436,6 +438,7 @@ resources:
           NodeIndex: '%index%'
           ServiceConfigSettings: {get_attr: [ControllerServiceChain, role_data, config_settings]}
           ServiceNames: {get_attr: [ControllerServiceChain, role_data, service_names]}
+          LoggingSources: {get_attr: [ControllerServiceChain, role_data, logging_sources]}
 
   ComputeServiceChain:
 
@@ -473,6 +476,7 @@ resources:
           NodeIndex: '%index%'
           ServiceConfigSettings: {get_attr: [ComputeServiceChain, role_data, config_settings]}
           ServiceNames: {get_attr: [ComputeServiceChain, role_data, service_names]}
+          LoggingSources: {get_attr: [ComputeServiceChain, role_data, logging_sources]}
 
   BlockStorageServiceChain:
     type: OS::TripleO::Services

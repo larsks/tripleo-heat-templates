@@ -13,6 +13,12 @@ parameters:
     default: 0
     description: Number of workers for Nova Conductor service.
     type: number
+  NovaSchedulerLoggingSource:
+    type: json
+    description: Fluentd logging configuration for nova-scheduler.
+    default:
+      tag: openstack.nova.scheduler
+      path: /var/log/nova/nova-scheduler.log
 
 resources:
   NovaBase:
@@ -25,6 +31,7 @@ outputs:
     description: Role data for the Nova Conductor service.
     value:
       service_name: nova_conductor
+      logging_source: {get_param: NovaSchedulerLoggingSource}
       config_settings:
         map_merge:
           - get_attr: [NovaBase, role_data, config_settings]

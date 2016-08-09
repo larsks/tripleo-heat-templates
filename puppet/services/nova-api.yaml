@@ -21,6 +21,12 @@ parameters:
     type: string
     default: 'regionOne'
     description: Keystone region for endpoint
+  NovaApiLoggingSource:
+    type: json
+    description: Fluentd logging configuration for nova-api.
+    default:
+      tag: openstack.nova.api
+      path: /var/log/nova/nova-api.log
 
 resources:
   NovaBase:
@@ -33,6 +39,7 @@ outputs:
     description: Role data for the Nova API service.
     value:
       service_name: nova_api
+      logging_source: {get_param: NovaApiLoggingSource}
       config_settings:
         map_merge:
           - get_attr: [NovaBase, role_data, config_settings]

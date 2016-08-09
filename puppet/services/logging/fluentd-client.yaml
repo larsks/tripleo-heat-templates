@@ -1,0 +1,37 @@
+heat_template_version: 2016-04-08
+
+description: Fluentd client configured with Puppet
+
+parameters:
+  EndpointMap:
+    default: {}
+    description: >
+      Mapping of service endpoint -> protocol. Typically set
+      via parameter_defaults in the resource registry.
+    type: json
+
+resources:
+  FluentdBase:
+    type: ./fluentd-base.yaml
+
+  LoggingConfiguration:
+    type: OS::TripleO::LoggingConfiguration
+
+outputs:
+  role_data:
+    description: Role data for the Fluentd client role.
+    value:
+      service_name: fluentd_client
+      config_settings:
+        map_merge:
+          - get_attr: [FluentdBase, role_data, config_settings]
+          - tripleo::profile::base::logging::fluentd::fluentd_servers:
+              get_attr: [LoggingConfiguration, LoggingServers]
+            tripleo::profile::base::logging::fluentd::fluentd_filters:
+              get_attr: [LoggingConfiguration, LoggingFilters]
+            tripleo::profile::base::logging::fluentd::fluentd_groups:
+              get_attr: [LoggingConfiguration, LoggingGroups]
+            tripleo::profile::base::logging::fluentd::fluentd_pos_file_path:
+              get_attr: [LoggingConfiguration, LoggingPosFilePath]
+      step_config: |
+        include ::tripleo::profile::base::logging::fluentd

@@ -9,6 +9,13 @@ parameters:
     description: Mapping of service endpoint -> protocol. Typically set
                  via parameter_defaults in the resource registry.
     type: json
+  NovaSchedulerLoggingSource:
+    type: json
+    description: Fluentd logging configuration for nova-scheduler.
+    default:
+      tag: openstack.nova.scheduler
+      path: /var/log/nova/nova-scheduler.log
+
 
 resources:
   NovaBase:
@@ -21,6 +28,7 @@ outputs:
     description: Role data for the Nova Scheduler service.
     value:
       service_name: nova_scheduler
+      logging_source: {get_param: NovaSchedulerLoggingSource}
       config_settings:
         map_merge:
           - get_attr: [NovaBase, role_data, config_settings]

@@ -26,6 +26,9 @@ resources:
       resource_properties:
         EndpointMap: {get_param: EndpointMap}
 
+  LoggingConfiguration:
+    type: OS::TripleO::LoggingConfiguration
+
 outputs:
   role_data:
     description: Combined Role data for this set of services.
@@ -36,5 +39,26 @@ outputs:
         yaql:
           expression: list($.data.s_names.where($ != null))
           data: {s_names: {get_attr: [ServiceChain, role_data, service_name]}}
+      logging_sources:
+        # Transform the individual logging_source configuration from
+        # each service in the chain into a global list, adding some
+        # default configuration at the same time.
+        yaql:
+          expression: >
+            let(
+            default_format => $.data.default_format,
+            pos_file_path => $.data.pos_file_path
+            ) ->
+            $.data.sources.where($ != null).select({
+            'type' => 'tail',
+            'tag' => $.tag,
+            'path' => $.path,
+            'format' => $.get('format', $default_format),
+            'pos_file' => $.get('pos_file', $pos_file_path + '/' + $.tag + '.pos')
+            })
+          data:
+            sources: {get_attr: [ServiceChain, role_data, logging_source]}
+            default_format: {get_attr: [LoggingConfiguration, LoggingDefaultFormat]}
+            pos_file_path: {get_attr: [LoggingConfiguration, LoggingPosFilePath]}
       config_settings: {map_merge: {get_attr: [ServiceChain, role_data, config_settings]}}
       step_config: {list_join: ["\n", {get_attr: [ServiceChain, role_data, step_config]}]}

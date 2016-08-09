@@ -22,6 +22,12 @@ parameters:
     type: string
     default: 'regionOne'
     description: Keystone region for endpoint
+  CinderApiLoggingSource:
+    type: json
+    description: Fluentd logging configuration for cinder-api.
+    default:
+      tag: openstack.cinder.api
+      path: /var/log/cinder/cinder-api.log
 
 resources:
 
@@ -35,6 +41,7 @@ outputs:
     description: Role data for the Cinder API role.
     value:
       service_name: cinder_api
+      logging_source: {get_param: CinderApiLoggingSource}
       config_settings:
         map_merge:
           - get_attr: [CinderBase, role_data, config_settings]

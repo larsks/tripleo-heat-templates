@@ -1,0 +1,60 @@
+heat_template_version: 2016-04-08
+
+description: Fluentd logging configuration
+
+parameters:
+  LoggingDefaultFormat:
+    description: |
+      Default format used to parse messages from log files.
+    type: string
+    default: >-
+      /(?<time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+) (?<pid>\d+) (?<priority>\S+) (?<message>.*)/
+  LoggingPosFilePath:
+    description: |
+      Directory in which to place fluent'd pos_file files (used to track
+      file position for the 'tail' input type).
+    type: string
+    default: /var/cache/fluentd
+  LoggingGroups:
+    description: |
+      Make fluentd user a member of these groups.
+    type: comma_delimited_list
+    default:
+      - root
+  LoggingServers:
+    description: |
+      A list of destinations to which fluentd will forward log messages.  Expects
+      a list of dictionaries of the form:
+
+          - host: loghost1.example.com
+            port: 24224
+          - host: loghost2.example.com
+            port: 24224
+    type: json
+    default: []
+  LoggingFilters:
+    description: |
+      A list of fluentd filters. This will be passed verbatim to the 'filter'
+      key of a fluentd::config resource.
+    type: json
+    default: []
+  LoggingUsesSSL:
+    description: |
+      A boolean value indicating whether or not we should forward log messages
+      use the secure_forward plugin.
+    type: boolean
+    default: false
+
+outputs:
+  LoggingDefaultFormat:
+    value: {get_param: LoggingDefaultFormat}
+  LoggingPosFilePath:
+    value: {get_param: LoggingPosFilePath}
+  LoggingServers:
+    value: {get_param: LoggingServers}
+  LoggingFilters:
+    value: {get_param: LoggingFilters}
+  LoggingGroups:
+    value: {get_param: LoggingGroups}
+  LoggingUsesSSL:
+    value: {get_param: LoggingUsesSSL}

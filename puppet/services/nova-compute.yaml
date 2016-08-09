@@ -15,6 +15,12 @@ parameters:
   CephClientUserName:
     default: openstack
     type: string
+  NovaComputeLoggingSource:
+    type: json
+    description: Fluentd logging configuration for nova-compute
+    default:
+      tag: openstack.nova.compute
+      path: /var/log/nova/nova-compute.log
 
 resources:
   NovaBase:
@@ -27,6 +33,7 @@ outputs:
     description: Role data for the Nova Compute service.
     value:
       service_name: nova_compute
+      logging_source: {get_param: NovaComputeLoggingSource}
       config_settings:
         map_merge:
           - get_attr: [NovaBase, role_data, config_settings]
