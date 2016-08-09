@@ -87,6 +87,11 @@ parameters:
   MonitoringSubscriptionKeystone:
     default: 'overcloud-kestone'
     type: string
+  KeystoneLoggingSource:
+    type: json
+    default:
+      tag: openstack.keystone
+      path: /var/log/keystone/keystone.log
 
 resources:
 
@@ -103,6 +108,9 @@ outputs:
     value:
       service_name: keystone
       monitoring_subscription: {get_param: MonitoringSubscriptionKeystone}
+      logging_source: {get_param: KeystoneLoggingSource}
+      logging_groups:
+        - keystone
       config_settings:
       config_settings:
         map_merge:

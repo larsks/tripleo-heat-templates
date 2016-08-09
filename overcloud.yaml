@@ -135,6 +135,7 @@ parameters:
   ControllerServices:
     default:
       - OS::TripleO::Services::CACerts
+      - OS::TripleO::Services::FluentdClient
       - OS::TripleO::Services::CephMon
       - OS::TripleO::Services::CephExternal
       - OS::TripleO::Services::CinderApi
@@ -208,6 +209,7 @@ parameters:
   ComputeServices:
     default:
       - OS::TripleO::Services::CACerts
+      - OS::TripleO::Services::FluentdClient
       - OS::TripleO::Services::CephClient
       - OS::TripleO::Services::CephExternal
       - OS::TripleO::Services::Timezone
@@ -244,6 +246,7 @@ parameters:
   BlockStorageServices:
     default:
       - OS::TripleO::Services::CACerts
+      - OS::TripleO::Services::FluentdClient
       - OS::TripleO::Services::CinderVolume
       - OS::TripleO::Services::Kernel
       - OS::TripleO::Services::Ntp
@@ -270,6 +273,7 @@ parameters:
   ObjectStorageServices:
     default:
       - OS::TripleO::Services::CACerts
+      - OS::TripleO::Services::FluentdClient
       - OS::TripleO::Services::Kernel
       - OS::TripleO::Services::Ntp
       - OS::TripleO::Services::SwiftStorage
@@ -299,6 +303,7 @@ parameters:
   CephStorageServices:
     default:
       - OS::TripleO::Services::CACerts
+      - OS::TripleO::Services::FluentdClient
       - OS::TripleO::Services::CephOSD
       - OS::TripleO::Services::Kernel
       - OS::TripleO::Services::Ntp
@@ -452,6 +457,8 @@ resources:
           ServiceConfigSettings: {get_attr: [ControllerServiceChain, role_data, config_settings]}
           ServiceNames: {get_attr: [ControllerServiceChain, role_data, service_names]}
           MonitoringSubscriptions: {get_attr: [ControllerServiceChain, role_data, monitoring_subscriptions]}
+          LoggingSources: {get_attr: [ControllerServiceChain, role_data, logging_sources]}
+          LoggingGroups: {get_attr: [ControllerServiceChain, role_data, logging_groups]}
 
   ComputeServiceChain:
     type: OS::TripleO::Services
@@ -484,6 +491,8 @@ resources:
           ServiceConfigSettings: {get_attr: [ComputeServiceChain, role_data, config_settings]}
           ServiceNames: {get_attr: [ComputeServiceChain, role_data, service_names]}
           MonitoringSubscriptions: {get_attr: [ComputeServiceChain, role_data, monitoring_subscriptions]}
+          LoggingSources: {get_attr: [ComputeServiceChain, role_data, logging_sources]}
+          LoggingGroups: {get_attr: [ComputeServiceChain, role_data, logging_groups]}
 
   BlockStorageServiceChain:
     type: OS::TripleO::Services
@@ -517,6 +526,8 @@ resources:
           ServiceConfigSettings: {get_attr: [BlockStorageServiceChain, role_data, config_settings]}
           ServiceNames: {get_attr: [BlockStorageServiceChain, role_data, service_names]}
           MonitoringSubscriptions: {get_attr: [BlockStorageServiceChain, role_data, monitoring_subscriptions]}
+          LoggingSources: {get_attr: [ControllerServiceChain, role_data, logging_sources]}
+          LoggingGroups: {get_attr: [ControllerServiceChain, role_data, logging_groups]}
 
   ObjectStorageServiceChain:
     type: OS::TripleO::Services
@@ -550,6 +561,8 @@ resources:
           ServiceConfigSettings: {get_attr: [ObjectStorageServiceChain, role_data, config_settings]}
           ServiceNames: {get_attr: [ObjectStorageServiceChain, role_data, service_names]}
           MonitoringSubscriptions: {get_attr: [ObjectStorageServiceChain, role_data, monitoring_subscriptions]}
+          LoggingSources: {get_attr: [ControllerServiceChain, role_data, logging_sources]}
+          LoggingGroups: {get_attr: [ControllerServiceChain, role_data, logging_groups]}
 
   CephStorageServiceChain:
     type: OS::TripleO::Services
@@ -583,6 +596,8 @@ resources:
           ServiceConfigSettings: {get_attr: [CephStorageServiceChain, role_data, config_settings]}
           ServiceNames: {get_attr: [CephStorageServiceChain, role_data, service_names]}
           MonitoringSubscriptions: {get_attr: [CephStorageServiceChain, role_data, monitoring_subscriptions]}
+          LoggingSources: {get_attr: [ControllerServiceChain, role_data, logging_sources]}
+          LoggingGroups: {get_attr: [ControllerServiceChain, role_data, logging_groups]}
 
   ControllerIpListMap:
     type: OS::TripleO::Network::Ports::NetIpListMap
