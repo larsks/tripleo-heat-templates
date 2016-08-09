@@ -68,6 +68,7 @@
     - OS::TripleO::Services::TripleoFirewall
     - OS::TripleO::Services::OpenDaylight
     - OS::TripleO::Services::SensuClient
+    - OS::TripleO::Services::FluentdClient
     - OS::TripleO::Services::VipHosts
 
 - name: Compute
@@ -93,6 +94,7 @@
     - OS::TripleO::Services::NeutronSriovAgent
     - OS::TripleO::Services::OpenDaylightOvs
     - OS::TripleO::Services::SensuClient
+    - OS::TripleO::Services::FluentdClient
     - OS::TripleO::Services::VipHosts
 
 - name: BlockStorage
@@ -108,6 +110,7 @@
     - OS::TripleO::Services::TripleoPackages
     - OS::TripleO::Services::TripleoFirewall
     - OS::TripleO::Services::SensuClient
+    - OS::TripleO::Services::FluentdClient
     - OS::TripleO::Services::VipHosts
 
 - name: ObjectStorage
@@ -124,6 +127,7 @@
     - OS::TripleO::Services::TripleoPackages
     - OS::TripleO::Services::TripleoFirewall
     - OS::TripleO::Services::SensuClient
+    - OS::TripleO::Services::FluentdClient
     - OS::TripleO::Services::VipHosts
 
 - name: CephStorage
@@ -138,4 +142,5 @@
     - OS::TripleO::Services::TripleoPackages
     - OS::TripleO::Services::TripleoFirewall
     - OS::TripleO::Services::SensuClient
+    - OS::TripleO::Services::FluentdClient
     - OS::TripleO::Services::VipHosts

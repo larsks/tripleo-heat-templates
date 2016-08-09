@@ -96,6 +96,12 @@ parameters:
     type: string
     description: Command which will be run whenever configuration data changes
     default: os-refresh-config --timeout 14400
+  LoggingSources:
+    type: json
+    default: []
+  LoggingGroups:
+    type: comma_delimited_list
+    default: []
 
 resources:
   BlockStorage:
@@ -271,6 +277,10 @@ resources:
             volume:
               mapped_data:
                 tripleo::packages::enable_upgrade: {get_input: enable_package_upgrade}
+                snmpd_readonly_user_name: {get_input: snmpd_readonly_user_name}
+                snmpd_readonly_user_password: {get_input: snmpd_readonly_user_password}
+                tripleo::profile::base::logging::fluentd::fluentd_sources: {get_param: LoggingSources}
+                tripleo::profile::base::logging::fluentd::fluentd_groups: {get_param: LoggingGroups}
 
   # Resource for site-specific injection of root certificate
   NodeTLSCAData:
