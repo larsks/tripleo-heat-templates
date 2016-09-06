@@ -5,6 +5,8 @@ resource_registry:
   OS::TripleO::Compute::Net::SoftwareConfig: net-config-noop.yaml
   OS::TripleO::SoftwareDeployment: OS::Heat::StructuredDeployment
   OS::TripleO::Controller: puppet/controller.yaml
+  OS::TripleO::OpsTools: puppet/opstools.yaml
+  OS::TripleO::OpsTools::Net::SoftwareConfig: net-config-bridge.yaml
   OS::TripleO::Controller::Net::SoftwareConfig: net-config-bridge.yaml
   OS::TripleO::ObjectStorage: puppet/swift-storage.yaml
   OS::TripleO::ObjectStorage::Net::SoftwareConfig: net-config-noop.yaml
@@ -42,6 +44,7 @@ resource_registry:
   OS::TripleO::NodeUserData: firstboot/userdata_default.yaml
   OS::TripleO::NodeTLSCAData: OS::Heat::None
   OS::TripleO::NodeTLSData: OS::Heat::None
+  OS::TripleO::OpsToolsExtraConfigPre: puppet/extraconfig/pre_deploy/default.yaml
   OS::TripleO::ControllerExtraConfigPre: puppet/extraconfig/pre_deploy/default.yaml
   OS::TripleO::ComputeExtraConfigPre: puppet/extraconfig/pre_deploy/default.yaml
   OS::TripleO::CephStorageExtraConfigPre: puppet/extraconfig/pre_deploy/default.yaml
@@ -78,6 +81,14 @@ resource_registry:
   OS::TripleO::Network::Ports::StorageVipPort: network/ports/noop.yaml
   OS::TripleO::Network::Ports::StorageMgmtVipPort: network/ports/noop.yaml
   OS::TripleO::Network::Ports::RedisVipPort: network/ports/ctlplane_vip.yaml
+
+  # Port assignments for the opstools role
+  OS::TripleO::OpsTools::Ports::ExternalPort: network/ports/noop.yaml
+  OS::TripleO::OpsTools::Ports::InternalApiPort: network/ports/noop.yaml
+  OS::TripleO::OpsTools::Ports::StoragePort: network/ports/noop.yaml
+  OS::TripleO::OpsTools::Ports::StorageMgmtPort: network/ports/noop.yaml
+  OS::TripleO::OpsTools::Ports::TenantPort: network/ports/noop.yaml
+  OS::TripleO::OpsTools::Ports::ManagementPort: network/ports/noop.yaml
 
   # Port assignments for the controller role
   OS::TripleO::Controller::Ports::ExternalPort: network/ports/noop.yaml
