@@ -1,0 +1,391 @@
+heat_template_version: 2016-10-14
+
+description: >
+  OpenStack operational tools node configured by Puppet.
+
+parameters:
+  OpsToolsExtraConfig:
+    default: {}
+    description: |
+      OpsTools specific hiera configuration data to inject into the cluster.
+    type: json
+  OpsToolsIPs:
+    default: {}
+    description: >
+      A network mapped list of IPs to assign to OpsToolss in the following form:
+      {
+        "internal_api": ["a.b.c.d", "e.f.g.h"],
+        ...
+      }
+    type: json
+  Debug:
+    default: ''
+    description: Set to True to enable debugging on all services.
+    type: string
+  EnableLoadBalancer:
+    default: true
+    description: Whether to deploy a LoadBalancer on the OpsTools
+    type: boolean
+  ExtraConfig:
+    default: {}
+    description: |
+      Additional hieradata to inject into the cluster, note that
+      OpsToolsExtraConfig takes precedence over ExtraConfig.
+    type: json
+  OvercloudOpsToolsFlavor:
+    description: Flavor for control nodes to request when deploying.
+    default: baremetal
+    type: string
+    constraints:
+      - custom_constraint: nova.flavor
+  OpsToolsImage:
+    type: string
+    default: overcloud-full
+    constraints:
+      - custom_constraint: glance.image
+  ImageUpdatePolicy:
+    default: 'REBUILD_PRESERVE_EPHEMERAL'
+    description: What policy to use when reconstructing instances. REBUILD for rebuilds, REBUILD_PRESERVE_EPHEMERAL to preserve /mnt.
+    type: string
+  KeyName:
+    default: default
+    description: Name of an existing Nova key pair to enable SSH access to the instances
+    type: string
+    constraints:
+      - custom_constraint: nova.keypair
+  ManageFirewall:
+    default: false
+    description: Whether to manage IPtables rules.
+    type: boolean
+  PurgeFirewallRules:
+    default: false
+    description: Whether IPtables rules should be purged before setting up the new ones.
+    type: boolean
+  RedisPassword:
+    description: The password for Redis
+    type: string
+    hidden: true
+  RedisVirtualIP:
+    type: string
+    default: ''  # Has to be here because of the ignored empty value bug
+  RedisVirtualIPUri:
+    type: string
+    default: ''  # Has to be here because of the ignored empty value bug
+    description: An IP address which is wrapped in brackets in case of IPv6
+  ServiceNetMap:
+    default: {}
+    description: Mapping of service_name -> network name. Typically set
+                 via parameter_defaults in the resource registry.
+    type: json
+  EndpointMap:
+    default: {}
+    description: Mapping of service endpoint -> protocol. Typically set
+                 via parameter_defaults in the resource registry.
+    type: json
+  UpdateIdentifier:
+    default: ''
+    type: string
+    description: >
+      Setting to a previously unused value during stack-update will trigger
+      package update on all nodes
+  Hostname:
+    type: string
+    default: '' # Defaults to Heat created hostname
+  HostnameMap:
+    type: json
+    default: {}
+    description: Optional mapping to override hostnames
+  NetworkDeploymentActions:
+    type: comma_delimited_list
+    description: >
+      Heat action when to apply network configuration changes
+    default: ['CREATE']
+  NodeIndex:
+    type: number
+    default: 0
+  SoftwareConfigTransport:
+    default: POLL_SERVER_CFN
+    description: |
+      How the server should receive the metadata required for software configuration.
+    type: string
+    constraints:
+    - allowed_values: [POLL_SERVER_CFN, POLL_SERVER_HEAT, POLL_TEMP_URL, ZAQAR_MESSAGE]
+  CloudDomain:
+    type: string
+    description: >
+      The DNS domain used for the hosts. This should match the dhcp_domain
+      configured in the Undercloud neutron. Defaults to localdomain.
+  ServerMetadata:
+    default: {}
+    description: >
+      Extra properties or metadata passed to Nova for the created nodes in
+      the overcloud. It's accessible via the Nova metadata API.
+    type: json
+  OpsToolsSchedulerHints:
+    type: json
+    description: Optional scheduler hints to pass to nova
+    default: {}
+  ServiceConfigSettings:
+    type: json
+    default: {}
+  ServiceNames:
+    type: comma_delimited_list
+    default: []
+  MonitoringSubscriptions:
+    type: comma_delimited_list
+    default: []
+  ConfigCommand:
+    type: string
+    description: Command which will be run whenever configuration data changes
+    default: os-refresh-config --timeout 14400
+  LoggingSources:
+    type: json
+    default: []
+  LoggingGroups:
+    type: comma_delimited_list
+    default: []
+
+resources:
+
+  OpsTools:
+    type: OS::TripleO::Server
+    metadata:
+      os-collect-config:
+        command: {get_param: ConfigCommand}
+    properties:
+      image: {get_param: OpsToolsImage}
+      image_update_policy: {get_param: ImageUpdatePolicy}
+      flavor: {get_param: OvercloudOpsToolsFlavor}
+      key_name: {get_param: KeyName}
+      networks:
+        - network: ctlplane
+      user_data_format: SOFTWARE_CONFIG
+      user_data: {get_resource: UserData}
+      name:
+        str_replace:
+            template: {get_param: Hostname}
+            params: {get_param: HostnameMap}
+      software_config_transport: {get_param: SoftwareConfigTransport}
+      metadata: {get_param: ServerMetadata}
+      scheduler_hints: {get_param: OpsToolsSchedulerHints}
+
+  # Combine the NodeAdminUserData and NodeUserData mime archives
+  UserData:
+    type: OS::Heat::MultipartMime
+    properties:
+      parts:
+      - config: {get_resource: NodeAdminUserData}
+        type: multipart
+      - config: {get_resource: NodeUserData}
+        type: multipart
+
+  # Creates the "heat-admin" user if configured via the environment
+  # Should return a OS::Heat::MultipartMime reference via OS::stack_id
+  NodeAdminUserData:
+    type: OS::TripleO::NodeAdminUserData
+
+  # For optional operator additional userdata
+  # Should return a OS::Heat::MultipartMime reference via OS::stack_id
+  NodeUserData:
+    type: OS::TripleO::NodeUserData
+
+  ExternalPort:
+    type: OS::TripleO::OpsTools::Ports::ExternalPort
+    properties:
+      IPPool: {get_param: OpsToolsIPs}
+      NodeIndex: {get_param: NodeIndex}
+      ControlPlaneIP: {get_attr: [OpsTools, networks, ctlplane, 0]}
+
+  ManagementPort:
+    type: OS::TripleO::OpsTools::Ports::ManagementPort
+    properties:
+      IPPool: {get_param: OpsToolsIPs}
+      NodeIndex: {get_param: NodeIndex}
+      ControlPlaneIP: {get_attr: [OpsTools, networks, ctlplane, 0]}
+
+  NetIpMap:
+    type: OS::TripleO::Network::Ports::NetIpMap
+    properties:
+      ControlPlaneIp: {get_attr: [OpsTools, networks, ctlplane, 0]}
+      ExternalIp: {get_attr: [ExternalPort, ip_address]}
+      ExternalIpSubnet: {get_attr: [ExternalPort, ip_subnet]}
+      ExternalIpUri: {get_attr: [ExternalPort, ip_address_uri]}
+      ManagementIp: {get_attr: [ManagementPort, ip_address]}
+      ManagementIpSubnet: {get_attr: [ManagementPort, ip_subnet]}
+      ManagementIpUri: {get_attr: [ManagementPort, ip_address_uri]}
+
+  NetworkConfig:
+    type: OS::TripleO::OpsTools::Net::SoftwareConfig
+    properties:
+      ControlPlaneIp: {get_attr: [OpsTools, networks, ctlplane, 0]}
+      ExternalIpSubnet: {get_attr: [ExternalPort, ip_subnet]}
+      ManagementIpSubnet: {get_attr: [ManagementPort, ip_subnet]}
+
+  NetworkDeployment:
+    type: OS::TripleO::SoftwareDeployment
+    properties:
+      name: NetworkDeployment
+      config: {get_resource: NetworkConfig}
+      server: {get_resource: OpsTools}
+      actions: {get_param: NetworkDeploymentActions}
+
+  # Resource for site-specific injection of root certificate
+  NodeTLSCAData:
+    depends_on: NetworkDeployment
+    type: OS::TripleO::NodeTLSCAData
+    properties:
+      server: {get_resource: OpsTools}
+
+  # Resource for site-specific passing of private keys/certificates
+  NodeTLSData:
+    depends_on: NodeTLSCAData
+    type: OS::TripleO::NodeTLSData
+    properties:
+      server: {get_resource: OpsTools}
+      NodeIndex: {get_param: NodeIndex}
+
+
+  OpsToolsDeployment:
+    type: OS::TripleO::SoftwareDeployment
+    depends_on: NetworkDeployment
+    properties:
+      name: OpsToolsDeployment
+      config: {get_resource: OpsToolsConfig}
+      server: {get_resource: OpsTools}
+      input_values:
+        bootstack_nodeid: {get_attr: [OpsTools, name]}
+        debug: {get_param: Debug}
+        enable_load_balancer: {get_param: EnableLoadBalancer}
+        manage_firewall: {get_param: ManageFirewall}
+        purge_firewall_rules: {get_param: PurgeFirewallRules}
+        enable_package_upgrade: {get_attr: [UpdateDeployment, update_managed_packages]}
+        redis_vip: {get_param: RedisVirtualIP}
+        ironic_api_network: {get_attr: [NetIpMap, net_ip_map, {get_param: [ServiceNetMap, IronicApiNetwork]}]}
+
+  # Map heat metadata into hiera datafiles
+  OpsToolsConfig:
+    type: OS::Heat::StructuredConfig
+    properties:
+      group: os-apply-config
+      config:
+        hiera:
+          hierarchy:
+            - '"%{::uuid}"'
+            - heat_config_%{::deploy_config_name}
+            - opstools_extraconfig
+            - extraconfig
+            - service_configs
+            - service_names
+            - opstools
+            - bootstrap_node # provided by BootstrapNodeConfig
+            - all_nodes # provided by allNodesConfig
+            - vip_data # provided by vip-config
+            - '"%{::osfamily}"'
+            - cinder_dellsc_data # Optionally provided by OpsToolsExtraConfigPre
+            - cinder_netapp_data # Optionally provided by OpsToolsExtraConfigPre
+            - cinder_eqlx_data # Optionally provided by OpsToolsExtraConfigPre
+            - neutron_bigswitch_data # Optionally provided by OpsToolsExtraConfigPre
+            - neutron_cisco_data # Optionally provided by OpsToolsExtraConfigPre
+            - cisco_n1kv_data # Optionally provided by OpsToolsExtraConfigPre
+            - midonet_data #Optionally provided by AllNodesExtraConfig
+            - cisco_aci_data # Optionally provided by OpsToolsExtraConfigPre
+          merge_behavior: deeper
+          datafiles:
+            service_names:
+              mapped_data:
+                service_names: {get_param: ServiceNames}
+                sensu::subscriptions: {get_param: MonitoringSubscriptions}
+            service_configs:
+              mapped_data:
+                map_replace:
+                  - {get_param: ServiceConfigSettings}
+                  - values: {get_attr: [NetIpMap, net_ip_map]}
+            opstools_extraconfig: {get_param: OpsToolsExtraConfig}
+            extraconfig:
+              mapped_data: {get_param: ExtraConfig}
+            opstools:
+              mapped_data: # data supplied directly to this deployment configuration, etc
+                bootstack_nodeid: {get_input: bootstack_nodeid}
+
+                # Firewall
+                tripleo::firewall::manage_firewall: {get_input: manage_firewall}
+                tripleo::firewall::purge_firewall_rules: {get_input: purge_firewall_rules}
+                # Misc
+                tripleo::packages::enable_upgrade: {get_input: enable_package_upgrade}
+
+  # Hook for site-specific additional pre-deployment config, e.g extra hieradata
+  OpsToolsExtraConfigPre:
+    depends_on: OpsToolsDeployment
+    type: OS::TripleO::OpsToolsExtraConfigPre
+    properties:
+        server: {get_resource: OpsTools}
+
+  # Hook for site-specific additional pre-deployment config,
+  # applying to all nodes, e.g node registration/unregistration
+  NodeExtraConfig:
+    depends_on: [OpsToolsExtraConfigPre, NodeTLSData]
+    type: OS::TripleO::NodeExtraConfig
+    properties:
+        server: {get_resource: OpsTools}
+
+  UpdateConfig:
+    type: OS::TripleO::Tasks::PackageUpdate
+
+  UpdateDeployment:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      name: UpdateDeployment
+      config: {get_resource: UpdateConfig}
+      server: {get_resource: OpsTools}
+      input_values:
+        update_identifier:
+          get_param: UpdateIdentifier
+
+outputs:
+  ip_address:
+    description: IP address of the server in the ctlplane network
+    value: {get_attr: [OpsTools, networks, ctlplane, 0]}
+  external_ip_address:
+    description: IP address of the server in the external network
+    value: {get_attr: [ExternalPort, ip_address]}
+  management_ip_address:
+    description: IP address of the server in the management network
+    value: {get_attr: [ManagementPort, ip_address]}
+  hostname:
+    description: Hostname of the server
+    value: {get_attr: [OpsTools, name]}
+  hosts_entry:
+    description: >
+      Server's IP address and hostname in the /etc/hosts format
+    value:
+      str_replace:
+        template: |
+          PRIMARYIP PRIMARYHOST.DOMAIN PRIMARYHOST
+          EXTERNALIP EXTERNALHOST.DOMAIN EXTERNALHOST
+          MANAGEMENTIP MANAGEMENTHOST.DOMAIN MANAGEMENTHOST
+        params:
+          PRIMARYIP: {get_attr: [NetIpMap, net_ip_map, {get_param: [ServiceNetMap, OpsToolsHostnameResolveNetwork]}]}
+          DOMAIN: {get_param: CloudDomain}
+          PRIMARYHOST: {get_attr: [OpsTools, name]}
+          EXTERNALIP: {get_attr: [ExternalPort, ip_address]}
+          EXTERNALHOST:
+            list_join:
+            - '.'
+            - - {get_attr: [OpsTools, name]}
+              - external
+          MANAGEMENTIP: {get_attr: [ManagementPort, ip_address]}
+          MANAGEMENTHOST:
+            list_join:
+            - '.'
+            - - {get_attr: [OpsTools, name]}
+              - management
+  nova_server_resource:
+    description: Heat resource handle for the Nova compute server
+    value:
+      {get_resource: OpsTools}
+  tls_key_modulus_md5:
+    description: MD5 checksum of the TLS Key Modulus
+    value: {get_attr: [NodeTLSData, key_modulus_md5]}
+  tls_cert_modulus_md5:
+    description: MD5 checksum of the TLS Certificate Modulus
+    value: {get_attr: [NodeTLSData, cert_modulus_md5]}

@@ -1,3 +1,15 @@
+- name: OpsTools
+  CountDefault: 0
+  HostnameFormatDefault: '%stackname%-opstools-%index%'
+  ServicesDefault:
+    - OS::TripleO::Services::Core
+    - OS::TripleO::Services::Kernel
+    - OS::TripleO::Services::Ntp
+    - OS::TripleO::Services::Snmp
+    - OS::TripleO::Services::Timezone
+    - OS::TripleO::Services::TripleoPackages
+    - OS::TripleO::Services::TripleoFirewall
+
 - name: Controller
   CountDefault: 1
   HostnameFormatDefault: '%stackname%-controller-%index%'
