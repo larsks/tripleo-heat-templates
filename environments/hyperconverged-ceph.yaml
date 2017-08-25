@@ -31,7 +31,7 @@ parameter_defaults:
     - OS::TripleO::Services::NeutronSriovAgent
     - OS::TripleO::Services::OpenDaylightOvs
     - OS::TripleO::Services::SensuClient
-    - OS::TripleO::Services::FluentdClient
+    - OS::TripleO::Services::Fluentd
     - OS::TripleO::Services::AuditD
     - OS::TripleO::Services::Collectd
     - OS::TripleO::Services::CephOSD
