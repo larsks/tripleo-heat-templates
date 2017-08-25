@@ -181,12 +181,6 @@ parameters:
       the configuration collection to occur as soon as the collection process
       starts.  This setting is used to prevent the configuration collection
       processes from polling all at the exact same time.
-  LoggingSources:
-    type: json
-    default: []
-  LoggingGroups:
-    type: comma_delimited_list
-    default: []
   UpgradeInitCommand:
     type: string
     description: |
@@ -591,8 +585,6 @@ resources:
           extraconfig: {get_param: ExtraConfig}
           {{role.name.lower()}}:
             tripleo::packages::enable_upgrade: {get_input: enable_package_upgrade}
-            tripleo::profile::base::logging::fluentd::fluentd_sources: {get_param: LoggingSources}
-            tripleo::profile::base::logging::fluentd::fluentd_groups: {get_param: LoggingGroups}
             fqdn_internal_api: {get_attr: [NetHostMap, value, internal_api, fqdn]}
             fqdn_storage: {get_attr: [NetHostMap, value, storage, fqdn]}
             fqdn_storage_mgmt: {get_attr: [NetHostMap, value, storage_mgmt, fqdn]}
