@@ -64,11 +64,6 @@ parameters:
   MonitoringSubscriptionNeutronServer:
     default: 'overcloud-neutron-server'
     type: string
-  NeutronApiLoggingSource:
-    type: json
-    default:
-      tag: openstack.neutron.api
-      path: /var/log/neutron/server.log
   EnableInternalTLS:
     type: boolean
     default: false
@@ -135,9 +130,6 @@ outputs:
     value:
       service_name: neutron_api
       monitoring_subscription: {get_param: MonitoringSubscriptionNeutronServer}
-      logging_source: {get_param: NeutronApiLoggingSource}
-      logging_groups:
-        - neutron
       config_settings:
         map_merge:
           - get_attr: [NeutronBase, role_data, config_settings]
@@ -205,6 +197,12 @@ outputs:
       step_config: |
         include tripleo::profile::base::neutron::server
       service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_neutron_api:
+            - neutron
+          tripleo_fluentd_sources_neutron_api:
+            - tag: openstack.neutron.api
+              path: /var/log/neutron/server.log
         keystone:
           neutron::keystone::auth::tenant: 'service'
           neutron::keystone::auth::public_url: {get_param: [EndpointMap, NeutronPublic, uri]}

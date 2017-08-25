@@ -45,11 +45,6 @@ parameters:
   MonitoringSubscriptionHeatApi:
     default: 'overcloud-heat-api'
     type: string
-  HeatApiLoggingSource:
-    type: json
-    default:
-      tag: openstack.heat.api
-      path: /var/log/heat/heat-api.log
   EnableInternalTLS:
     type: boolean
     default: false
@@ -92,9 +87,6 @@ outputs:
     value:
       service_name: heat_api
       monitoring_subscription: {get_param: MonitoringSubscriptionHeatApi}
-      logging_source: {get_param: HeatApiLoggingSource}
-      logging_groups:
-        - heat
       config_settings:
         map_merge:
           - get_attr: [HeatBase, role_data, config_settings]
@@ -128,6 +120,12 @@ outputs:
       step_config: |
         include ::tripleo::profile::base::heat::api
       service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_heat_api:
+            - heat
+          tripleo_fluentd_sources_heat_api:
+            - tag: openstack.heat.api
+              path: /var/log/heat/heat-api.log
         keystone:
           map_merge:
             - get_attr: [HeatBase, role_data, service_config_settings, keystone]

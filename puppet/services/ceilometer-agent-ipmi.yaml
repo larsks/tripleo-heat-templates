@@ -37,11 +37,6 @@ parameters:
   MonitoringSubscriptionCeilometerIpmi:
     default: 'overcloud-ceilometer-agent-ipmi'
     type: string
-  CeilometerAgentIpmiLoggingSource:
-    type: json
-    default:
-      tag: openstack.ceilometer.agent.ipmi
-      path: /var/log/ceilometer/ipmi.log
 
 resources:
   CeilometerServiceBase:
@@ -60,14 +55,18 @@ outputs:
     value:
       service_name: ceilometer_agent_ipmi
       monitoring_subscription: {get_param: MonitoringSubscriptionCeilometerIpmi}
-      logging_source: {get_param: CeilometerAgentIpmiLoggingSource}
-      logging_groups:
-        - ceilometer
       config_settings:
         map_merge:
           - get_attr: [CeilometerServiceBase, role_data, config_settings]
           - ceilometer_redis_password: {get_param: RedisPassword}
             ipmi_namespace: true
+      service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_ceilometer_agent_ipmi:
+            - ceilometer
+          tripleo_fluentd_sources_ceilometer_agent_ipmi:
+            - tag: openstack.ceilometer.agent.ipmi
+              path: /var/log/ceilometer/ipmi.log
       step_config: |
         include ::tripleo::profile::base::ceilometer::agent::polling
       upgrade_tasks:

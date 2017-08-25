@@ -79,16 +79,6 @@ parameters:
           ]
         }
     type: json
-  PacemakerRemoteLoggingSource:
-    type: json
-    default:
-      tag: system.pacemaker_remote
-      path: /var/log/pacemaker.log
-      format: >-
-        /^(?<time>[^ ]*\s*[^ ]* [^ ]*)
-        \[(?<pid>[^ ]*)\]
-        (?<host>[^ ]*)
-        (?<message>.*)$/
 
 outputs:
   role_data:
@@ -96,9 +86,6 @@ outputs:
     value:
       service_name: pacemaker_remote
       monitoring_subscription: {get_param: MonitoringSubscriptionPacemakerRemote}
-      logging_groups:
-        - haclient
-      logging_source: {get_param: PacemakerRemoteLoggingSource}
       config_settings:
         tripleo.pacemaker_remote.firewall_rules:
           '130 pacemaker_remote tcp':
@@ -116,5 +103,17 @@ outputs:
               passwords:
                 - {get_param: PcsdPassword}
                 - {get_param: [DefaultPasswords, pcsd_password]}
+      service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_pacemaker_remote:
+            - haclient
+          tripleo_fluentd_sources_pacemaker_remote:
+            - tag: system.pacemaker_remote
+              path: /var/log/pacemaker.log
+              format: >-
+                /^(?<time>[^ ]*\s*[^ ]* [^ ]*)
+                \[(?<pid>[^ ]*)\]
+                (?<host>[^ ]*)
+                (?<message>.*)$/
       step_config: |
         include ::tripleo::profile::base::pacemaker_remote

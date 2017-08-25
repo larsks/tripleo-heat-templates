@@ -54,11 +54,6 @@ parameters:
   MonitoringSubscriptionEc2Api:
     default: 'overcloud-ec2-api'
     type: string
-  Ec2ApiLoggingSource:
-    type: json
-    default:
-      tag: openstack.ec2.api
-      path: /var/log/ec2api/ec2api.log
   EnablePackageInstall:
     default: 'false'
     description: Set to true to enable package installation at deploy time
@@ -81,9 +76,6 @@ outputs:
     value:
       service_name: ec2_api
       monitoring_subscription: {get_param: MonitoringSubscriptionEc2Api}
-      logging_source: {get_param: Ec2ApiLoggingSource}
-      logging_groups:
-        - nova
       config_settings:
         map_merge:
         - tripleo.ec2_api.firewall_rules:
@@ -139,6 +131,12 @@ outputs:
       step_config: |
         include tripleo::profile::base::nova::ec2api
       service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_ec2_api:
+            - nova
+          tripleo_fluentd_sources_ec2_api:
+            - tag: openstack.ec2.api
+              path: /var/log/ec2api/ec2api.log
         keystone:
           ec2api::keystone::auth::tenant: 'service'
           ec2api::keystone::auth::public_url: {get_param: [EndpointMap, Ec2ApiPublic, uri]}

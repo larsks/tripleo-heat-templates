@@ -42,11 +42,6 @@ parameters:
   MonitoringSubscriptionCeilometerCollector:
     default: 'overcloud-ceilometer-collector'
     type: string
-  CeilometerCollectorLoggingSource:
-    type: json
-    default:
-      tag: openstack.ceilometer.collector
-      path: /var/log/ceilometer/collector.log
   CeilometerMeterDispatcher:
     default: ['gnocchi']
     description: Comma-seperated list of Dispatcher to process meter data
@@ -100,9 +95,6 @@ outputs:
     value:
       service_name: ceilometer_collector
       monitoring_subscription: {get_param: MonitoringSubscriptionCeilometerCollector}
-      logging_source: {get_param: CeilometerCollectorLoggingSource}
-      logging_groups:
-        - ceilometer
       config_settings:
         map_merge:
           - get_attr: [MongoDbBase, role_data, config_settings]
@@ -127,7 +119,14 @@ outputs:
             ceilometer::collector::meter_dispatcher: {get_param: CeilometerMeterDispatcher}
             ceilometer::collector::event_dispatcher: {get_param: CeilometerEventDispatcher}
       service_config_settings:
-        get_attr: [CeilometerServiceBase, role_data, service_config_settings]
+        map_merge:
+          - get_attr: [CeilometerServiceBase, role_data, service_config_settings]
+          - fluentd:
+              tripleo_fluentd_groups_ceilometer_collector:
+                - ceilometer
+              tripleo_fluentd_sources_ceilometer_collector:
+                - tag: openstack.ceilometer.collector
+                  path: /var/log/ceilometer/collector.log
       step_config: |
         include ::tripleo::profile::base::ceilometer::collector
       upgrade_tasks:

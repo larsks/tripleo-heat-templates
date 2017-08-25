@@ -37,11 +37,6 @@ parameters:
   MonitoringSubscriptionHeatApiCloudwatch:
     default: 'overcloud-heat-api-cloudwatch'
     type: string
-  HeatApiCloudwatchLoggingSource:
-    type: json
-    default:
-      tag: openstack.heat.api.cloudwatch
-      path: /var/log/heat/heat-api-cloudwatch.log
   EnableInternalTLS:
     type: boolean
     default: false
@@ -78,9 +73,6 @@ outputs:
     value:
       service_name: heat_api_cloudwatch
       monitoring_subscription: {get_param: MonitoringSubscriptionHeatApiCloudwatch}
-      logging_source: {get_param: HeatApiCloudwatchLoggingSource}
-      logging_groups:
-        - heat
       config_settings:
         map_merge:
           - get_attr: [HeatBase, role_data, config_settings]
@@ -112,6 +104,13 @@ outputs:
             - heat_workers_zero
             - {}
             - heat::wsgi::apache_api_cloudwatch::workers: {get_param: HeatWorkers}
+      service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_heat_api_cloudwatch:
+            - heat
+          tripleo_fluentd_sources_heat_api_cloudwatch:
+            - tag: openstack.heat.api.cloudwatch
+              path: /var/log/heat/heat-api-cloudwatch.log
       step_config: |
         include ::tripleo::profile::base::heat::api_cloudwatch
       metadata_settings:

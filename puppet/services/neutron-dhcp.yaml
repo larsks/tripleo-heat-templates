@@ -46,11 +46,6 @@ parameters:
   MonitoringSubscriptionNeutronDhcp:
     default: 'overcloud-neutron-dhcp'
     type: string
-  NeutronDhcpAgentLoggingSource:
-    type: json
-    default:
-      tag: openstack.neutron.agent.dhcp
-      path: /var/log/neutron/dhcp-agent.log
   NeutronDhcpAgentDnsmasqDnsServers:
     default: []
     description: List of servers to use as dnsmasq forwarders
@@ -74,9 +69,6 @@ outputs:
     value:
       service_name: neutron_dhcp
       monitoring_subscription: {get_param: MonitoringSubscriptionNeutronDhcp}
-      logging_source: {get_param: NeutronDhcpAgentLoggingSource}
-      logging_groups:
-        - neutron
       config_settings:
         map_merge:
           - get_attr: [NeutronBase, role_data, config_settings]
@@ -92,6 +84,13 @@ outputs:
                 proto: 'udp'
                 chain: 'OUTPUT'
                 dport: 68
+      service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_neutron_dhcp:
+            - neutron
+          tripleo_fluentd_sources_neutron_dhcp:
+            - tag: openstack.neutron.agent.dhcp
+              path: /var/log/neutron/dhcp-agent.log
       step_config: |
         include tripleo::profile::base::neutron::dhcp
       upgrade_tasks:

@@ -37,11 +37,6 @@ parameters:
   MonitoringSubscriptionNovaConductor:
     default: 'overcloud-nova-conductor'
     type: string
-  NovaSchedulerLoggingSource:
-    type: json
-    default:
-      tag: openstack.nova.scheduler
-      path: /var/log/nova/nova-scheduler.log
   UpgradeLevelNovaCompute:
     type: string
     description: Nova Compute upgrade level
@@ -67,9 +62,6 @@ outputs:
     value:
       service_name: nova_conductor
       monitoring_subscription: {get_param: MonitoringSubscriptionNovaConductor}
-      logging_source: {get_param: NovaSchedulerLoggingSource}
-      logging_groups:
-        - nova
       config_settings:
         map_merge:
         - get_attr: [NovaBase, role_data, config_settings]
@@ -78,6 +70,14 @@ outputs:
           - nova_workers_zero
           - {}
           - nova::conductor::workers: {get_param: NovaWorkers}
+      service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_nova_conductor:
+            - nova
+          tripleo_fluentd_sources_nova_conductor:
+            - type: tail
+              tag: openstack.nova.conductor
+              path: /var/log/nova/nova-conductor.log
       step_config: |
         include tripleo::profile::base::nova::conductor
       upgrade_tasks:

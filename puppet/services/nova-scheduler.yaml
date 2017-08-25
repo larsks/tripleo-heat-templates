@@ -44,11 +44,6 @@ parameters:
   MonitoringSubscriptionNovaScheduler:
     default: 'overcloud-nova-scheduler'
     type: string
-  NovaSchedulerLoggingSource:
-    type: json
-    default:
-      tag: openstack.nova.scheduler
-      path: /var/log/nova/nova-scheduler.log
   NovaSchedulerDiscoverHostsInCellsInterval:
     type: number
     default: -1
@@ -75,9 +70,6 @@ outputs:
     value:
       service_name: nova_scheduler
       monitoring_subscription: {get_param: MonitoringSubscriptionNovaScheduler}
-      logging_source: {get_param: NovaSchedulerLoggingSource}
-      logging_groups:
-        - nova
       config_settings:
         map_merge:
           - get_attr: [NovaBase, role_data, config_settings]
@@ -85,6 +77,13 @@ outputs:
             nova::scheduler::filter::scheduler_available_filters: {get_param: NovaSchedulerAvailableFilters}
             nova::scheduler::filter::scheduler_default_filters: {get_param: NovaSchedulerDefaultFilters}
             nova::scheduler::discover_hosts_in_cells_interval: {get_param: NovaSchedulerDiscoverHostsInCellsInterval}
+      service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_nova_scheduler:
+            - nova
+          tripleo_fluentd_sources_nova_scheduler:
+            - tag: openstack.nova.scheduler
+              path: /var/log/nova/nova-scheduler.log
       step_config: |
         include tripleo::profile::base::nova::scheduler
       upgrade_tasks:

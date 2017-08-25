@@ -45,11 +45,6 @@ parameters:
   MonitoringSubscriptionNovaPlacement:
     default: 'overcloud-nova-placement'
     type: string
-  NovaPlacementLoggingSource:
-    type: json
-    default:
-      tag: openstack.nova.placement
-      path: /var/log/httpd/nova_placement_wsgi_error_ssl.log
   EnableInternalTLS:
     type: boolean
     default: false
@@ -85,9 +80,6 @@ outputs:
     value:
       service_name: nova_placement
       monitoring_subscription: {get_param: MonitoringSubscriptionNovaPlacement}
-      logging_source: {get_param: NovaPlacementLoggingSource}
-      logging_groups:
-        - nova
       config_settings:
         map_merge:
         - get_attr: [NovaBase, role_data, config_settings]
@@ -123,6 +115,12 @@ outputs:
       step_config: |
         include tripleo::profile::base::nova::placement
       service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_nova_placement:
+            - nova
+          tripleo_fluentd_sources_nova_placement:
+            - tag: openstack.nova.placement
+              path: /var/log/httpd/nova_placement_wsgi_error_ssl.log
         keystone:
           nova::keystone::auth_placement::tenant: 'service'
           nova::keystone::auth_placement::public_url: {get_param: [EndpointMap, NovaPlacementPublic, uri]}

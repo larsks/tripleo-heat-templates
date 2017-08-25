@@ -40,11 +40,6 @@ parameters:
   MonitoringSubscriptionOctaviaHousekeeping:
     default: 'overcloud-octavia-housekeeping'
     type: string
-  OctaviaHousekeepingLoggingSource:
-    type: json
-    default:
-      tag: openstack.octavia.housekeeping
-      path: /var/log/octavia/housekeeping.log
 
 conditions:
   amphora_expiry_is_zero: {equals: [{get_param: OctaviaAmphoraExpiryAge}, 0]}
@@ -68,9 +63,6 @@ outputs:
     value:
       service_name: octavia_housekeeping
       monitoring_subscription: {get_param: MonitoringSubscriptionOctaviaHousekeeping}
-      logging_source: {get_param: OctaviaHousekeepingLoggingSource}
-      logging_groups:
-        - octavia
       config_settings:
         map_merge:
           - get_attr: [OctaviaBase, role_data, config_settings]
@@ -79,6 +71,13 @@ outputs:
             - amphora_expiry_is_zero
             - {}
             - octavia::worker::amphora_expiry_age: {get_param: OctaviaAmphoraExpiryAge}
+      service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_octavia_housekeeping:
+            - octavia
+          tripleo_fluentd_sources_octavia_housekeeping:
+            - tag: openstack.octavia.housekeeping
+              path: /var/log/octavia/housekeeping.log
       step_config: |
         include tripleo::profile::base::octavia::housekeeping
 

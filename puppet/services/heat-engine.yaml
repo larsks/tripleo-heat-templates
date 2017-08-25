@@ -55,11 +55,6 @@ parameters:
   MonitoringSubscriptionHeatEngine:
     default: 'overcloud-heat-engine'
     type: string
-  HeatEngineLoggingSource:
-    type: json
-    default:
-      tag: openstack.heat.engine
-      path: /var/log/heat/heat-engine.log
   HeatConvergenceEngine:
     type: boolean
     default: true
@@ -87,9 +82,6 @@ outputs:
     value:
       service_name: heat_engine
       monitoring_subscription: {get_param: MonitoringSubscriptionHeatEngine}
-      logging_source: {get_param: HeatEngineLoggingSource}
-      logging_groups:
-        - heat
       config_settings:
         map_merge:
           - get_attr: [HeatBase, role_data, config_settings]
@@ -138,6 +130,12 @@ outputs:
         include ::tripleo::profile::base::heat::engine
 
       service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_heat_engine:
+            - heat
+          tripleo_fluentd_sources_heat_engine:
+            - tag: openstack.heat.engine
+              path: /var/log/heat/heat-engine.log
         mysql:
           heat::db::mysql::password: {get_param: HeatPassword}
           heat::db::mysql::user: heat

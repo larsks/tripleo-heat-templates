@@ -33,11 +33,6 @@ parameters:
   MonitoringSubscriptionOctaviaWorker:
     default: 'overcloud-octavia-worker'
     type: string
-  OctaviaWorkerLoggingSource:
-    type: json
-    default:
-      tag: openstack.octavia.worker
-      path: /var/log/octavia/worker.log
   OctaviaAmphoraImageTag:
     default: ''
     description: Glance image tag for identifying the amphora image.
@@ -91,9 +86,6 @@ outputs:
     value:
       service_name: octavia_worker
       monitoring_subscription: {get_param: MonitoringSubscriptionOctaviaWorker}
-      logging_source: {get_param: OctaviaWorkerLoggingSource}
-      logging_groups:
-        -octavia
       config_settings:
         map_merge:
           - get_attr: [OctaviaBase, role_data, config_settings]
@@ -112,6 +104,13 @@ outputs:
             - octavia_topology_unset
             - {}
             - octavia::worker::loadbalancer_topology: {get_param: OctaviaLoadBalancerTopology}
+      service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_octavia_worker:
+            - octavia
+          tripleo_fluentd_sources_octavia_worker:
+            - tag: openstack.octavia.worker
+              path: /var/log/octavia/worker.log
       step_config: |
         include tripleo::profile::base::octavia::worker
 

@@ -45,11 +45,6 @@ parameters:
   MonitoringSubscriptionSaharaApi:
     default: 'overcloud-sahara-api'
     type: string
-  SaharaApiLoggingSource:
-    type: json
-    default:
-      tag: openstack.sahara.api
-      path: /var/log/sahara/sahara-api.log
   SaharaApiPolicies:
     description: |
       A hash of policies to configure for Sahara API.
@@ -74,9 +69,6 @@ outputs:
     value:
       service_name: sahara_api
       monitoring_subscription: {get_param: MonitoringSubscriptionSaharaApi}
-      logging_source: {get_param: SaharaApiLoggingSource}
-      logging_groups:
-        - sahara
       config_settings:
         map_merge:
           - get_attr: [SaharaBase, role_data, config_settings]
@@ -94,6 +86,13 @@ outputs:
                 dport:
                   - 8386
                   - 13386
+      service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_sahara_api:
+            - sahara
+          tripleo_fluentd_sources_sahara_api:
+            - tag: openstack.sahara.api
+              path: /var/log/sahara/sahara-api.log
       step_config: |
         include ::tripleo::profile::base::sahara::api
       service_config_settings:

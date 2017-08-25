@@ -89,11 +89,6 @@ parameters:
   MonitoringSubscriptionNovaCompute:
     default: 'overcloud-nova-compute'
     type: string
-  NovaComputeLoggingSource:
-    type: json
-    default:
-      tag: openstack.nova.compute
-      path: /var/log/nova/nova-compute.log
   UpgradeLevelNovaCompute:
     type: string
     description: Nova Compute upgrade level
@@ -145,9 +140,6 @@ outputs:
     value:
       service_name: nova_compute
       monitoring_subscription: {get_param: MonitoringSubscriptionNovaCompute}
-      logging_source: {get_param: NovaComputeLoggingSource}
-      logging_groups:
-        - nova
       config_settings:
         map_merge:
           - get_attr: [NovaBase, role_data, config_settings]
@@ -207,6 +199,13 @@ outputs:
         # Until then, just include it in the default nova-compute role.
         include tripleo::profile::base::nova::compute::libvirt
       service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_nova_compute:
+            - nova
+          tripleo_fluentd_sources_nova_compute:
+            - type: tail
+              tag: openstack.nova.compute
+              path: /var/log/nova/nova-compute.log
         collectd:
           tripleo.collectd.plugins.nova_compute:
             - virt

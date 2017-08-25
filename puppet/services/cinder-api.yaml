@@ -19,9 +19,6 @@ parameters:
     type: json
   ServiceNetMap:
     default: {}
-    description: Mapping of service_name -> network name. Typically set
-                 via parameter_defaults in the resource registry.  This
-                 mapping overrides those in ServiceNetMapDefaults.
     type: json
   DefaultPasswords:
     default: {}
@@ -46,11 +43,6 @@ parameters:
   MonitoringSubscriptionCinderApi:
     default: 'overcloud-cinder-api'
     type: string
-  CinderApiLoggingSource:
-    type: json
-    default:
-      tag: openstack.cinder.api
-      path: /var/log/cinder/cinder-api.log
   CinderWorkers:
     type: string
     description: Set the number of workers for cinder::wsgi::apache
@@ -103,9 +95,6 @@ outputs:
     value:
       service_name: cinder_api
       monitoring_subscription: {get_param: MonitoringSubscriptionCinderApi}
-      logging_source: {get_param: CinderApiLoggingSource}
-      logging_groups:
-        - cinder
       config_settings:
         map_merge:
           - get_attr: [CinderBase, role_data, config_settings]
@@ -160,6 +149,12 @@ outputs:
       step_config: |
         include ::tripleo::profile::base::cinder::api
       service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_cinder_api:
+            - cinder
+          tripleo_fluentd_sources_cinder_api:
+            - tag: openstack.cinder.api
+              path: /var/log/cinder/cinder-api.log
         keystone:
           cinder::keystone::auth::tenant: 'service'
           cinder::keystone::auth::public_url: {get_param: [EndpointMap, CinderPublic, uri]}

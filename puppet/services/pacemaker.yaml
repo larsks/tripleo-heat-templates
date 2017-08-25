@@ -89,16 +89,6 @@ parameters:
           ]
         }
     type: json
-  PacemakerLoggingSource:
-    type: json
-    default:
-      tag: system.pacemaker
-      path: /var/log/pacemaker.log,/var/log/cluster/corosync.log
-      format: >-
-        /^(?<time>[^ ]*\s*[^ ]* [^ ]*)
-        \[(?<pid>[^ ]*)\]
-        (?<host>[^ ]*)
-        (?<message>.*)$/
 
   EnableLoadBalancer:
     default: true
@@ -111,9 +101,6 @@ outputs:
     value:
       service_name: pacemaker
       monitoring_subscription: {get_param: MonitoringSubscriptionPacemaker}
-      logging_groups:
-        - haclient
-      logging_source: {get_param: PacemakerLoggingSource}
       config_settings:
         pacemaker::corosync::cluster_name: 'tripleo_cluster'
         pacemaker::corosync::manage_fw: false
@@ -142,6 +129,18 @@ outputs:
                 - {get_param: PcsdPassword}
                 - {get_param: [DefaultPasswords, pcsd_password]}
         tripleo::profile::base::pacemaker::remote_authkey: {get_param: PacemakerRemoteAuthkey}
+      service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_pacemaker:
+            - haclient
+          tripleo_fluentd_sources_pacemaker:
+            - tag: system.pacemaker
+              path: /var/log/pacemaker.log,/var/log/cluster/corosync.log
+              format: >-
+                /^(?<time>[^ ]*\s*[^ ]* [^ ]*)
+                \[(?<pid>[^ ]*)\]
+                (?<host>[^ ]*)
+                (?<message>.*)$/
       step_config: |
         include ::tripleo::profile::base::pacemaker
       upgrade_tasks:
