@@ -58,11 +58,6 @@ parameters:
   MonitoringSubscriptionNovaApi:
     default: 'overcloud-nova-api'
     type: string
-  NovaApiLoggingSource:
-    type: json
-    default:
-      tag: openstack.nova.api
-      path: /var/log/nova/nova-api.log
   EnableInternalTLS:
     type: boolean
     default: false
@@ -111,9 +106,6 @@ outputs:
     value:
       service_name: nova_api
       monitoring_subscription: {get_param: MonitoringSubscriptionNovaApi}
-      logging_source: {get_param: NovaApiLoggingSource}
-      logging_groups:
-        - nova
       config_settings:
         map_merge:
         - get_attr: [NovaBase, role_data, config_settings]
@@ -172,6 +164,13 @@ outputs:
       step_config: |
         include tripleo::profile::base::nova::api
       service_config_settings:
+        fluentd:
+          tripleo_fluentd_groups_nova_api:
+            - nova
+          tripleo_fluentd_sources_nova_api:
+            - type: tail
+              tag: openstack.nova.api
+              path: /var/log/nova/nova-api.log
         mysql:
           map_merge:
           - {get_attr: [NovaBase, role_data, service_config_settings, mysql]}
