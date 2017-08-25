@@ -103,7 +103,7 @@
     - OS::TripleO::Services::OpenDaylightApi
     - OS::TripleO::Services::OpenDaylightOvs
     - OS::TripleO::Services::SensuClient
-    - OS::TripleO::Services::FluentdClient
+    - OS::TripleO::Services::Fluentd
     - OS::TripleO::Services::BarbicanApi
     - OS::TripleO::Services::PankoApi
     - OS::TripleO::Services::Zaqar
@@ -136,7 +136,7 @@
     - OS::TripleO::Services::NeutronSriovHostConfig
     - OS::TripleO::Services::OpenDaylightOvs
     - OS::TripleO::Services::SensuClient
-    - OS::TripleO::Services::FluentdClient
+    - OS::TripleO::Services::Fluentd
     - OS::TripleO::Services::Iscsid
 
 - name: BlockStorageDeployedServer
@@ -152,7 +152,7 @@
     - OS::TripleO::Services::TripleoPackages
     - OS::TripleO::Services::TripleoFirewall
     - OS::TripleO::Services::SensuClient
-    - OS::TripleO::Services::FluentdClient
+    - OS::TripleO::Services::Fluentd
 
 - name: ObjectStorageDeployedServer
   disable_constraints: True
@@ -168,7 +168,7 @@
     - OS::TripleO::Services::TripleoPackages
     - OS::TripleO::Services::TripleoFirewall
     - OS::TripleO::Services::SensuClient
-    - OS::TripleO::Services::FluentdClient
+    - OS::TripleO::Services::Fluentd
 
 - name: CephStorageDeployedServer
   disable_constraints: True
@@ -183,4 +183,4 @@
     - OS::TripleO::Services::TripleoPackages
     - OS::TripleO::Services::TripleoFirewall
     - OS::TripleO::Services::SensuClient
-    - OS::TripleO::Services::FluentdClient
+    - OS::TripleO::Services::Fluentd
