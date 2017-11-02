@@ -1,0 +1,18 @@
+heat_template_version: pike
+
+description: >
+  Common configuration for rsyslog sidecar container
+
+parameters:
+  DockerSyslogProxyImage:
+    description: image
+    type: string
+
+outputs:
+  sidecar_container:
+    start_order: 1
+    image: {get_param: DockerSyslogProxyImage}
+    user: root
+    privileged: false
+    restart: always
+    command: ["rsyslogd", "-n"]
