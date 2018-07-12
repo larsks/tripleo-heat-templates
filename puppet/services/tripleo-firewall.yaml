@@ -38,6 +38,15 @@ parameters:
     default: false
     description: Whether IPtables rules should be purged before setting up the new ones.
     type: boolean
+  DefaultFirewallRules:
+    type: json
+    description: These firewall rules will be realized on all overcloud hosts
+    default:
+      tripleo.tripleo_firewall.firewall_rules:
+        '003 accept ssh':
+          dport: 22
+          proto: 'tcp'
+
 
 outputs:
   role_data:
@@ -45,8 +54,10 @@ outputs:
     value:
       service_name: tripleo_firewall
       config_settings:
-        tripleo::firewall::manage_firewall: {get_param: ManageFirewall}
-        tripleo::firewall::purge_firewall_rules: {get_param: PurgeFirewallRules}
+        map_merge:
+          - tripleo::firewall::manage_firewall: {get_param: ManageFirewall}
+            tripleo::firewall::purge_firewall_rules: {get_param: PurgeFirewallRules}
+          - {get_param: DefaultFirewallRules}
       step_config: |
         include ::tripleo::firewall
       upgrade_tasks:
