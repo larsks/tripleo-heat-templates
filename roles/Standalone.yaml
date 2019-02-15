@@ -137,6 +137,7 @@
     - OS::TripleO::Services::NovaMigrationTarget
     - OS::TripleO::Services::NovaPlacement
     - OS::TripleO::Services::NovaScheduler
+    - OS::TripleO::Services::NovaSerialProxy
     - OS::TripleO::Services::NovaVncProxy
     - OS::TripleO::Services::OVNController
     - OS::TripleO::Services::OVNDBs

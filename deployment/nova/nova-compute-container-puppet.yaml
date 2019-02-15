@@ -409,6 +409,9 @@ outputs:
             nova::vncproxy::common::vncproxy_protocol: {get_param: [EndpointMap, NovaVNCProxyPublic, protocol]}
             nova::vncproxy::common::vncproxy_host: {get_param: [EndpointMap, NovaVNCProxyPublic, host_nobrackets]}
             nova::vncproxy::common::vncproxy_port: {get_param: [EndpointMap, NovaVNCProxyPublic, port]}
+            nova::serialproxy::common::serialproxy_protocol: {get_param: [EndpointMap, NovaSerialProxyPublic, protocol]}
+            nova::serialproxy::common::serialproxy_host: {get_param: [EndpointMap, NovaSerialProxyPublic, host_nobrackets]}
+            nova::serialproxy::common::serialproxy_port: {get_param: [EndpointMap, NovaSerialProxyPublic, port]}
             nova::compute::verify_glance_signatures: {get_param: [VerifyGlanceSignatures]}
             # if libvirt_file_backed_memory_enabled we have to set ram_allocation_ratio to 1.0
             nova::ram_allocation_ratio:

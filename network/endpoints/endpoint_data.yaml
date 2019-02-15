@@ -267,6 +267,15 @@ NovaVNCProxy:
         net_param: NovaApi
     port: 6080
 
+NovaSerialProxy:
+    Internal:
+        net_param: NovaApi
+    Public:
+        net_param: Public
+    Admin:
+        net_param: NovaApi
+    port: 6083
+
 Openshift:
     Internal:
         net_param: OpenshiftMaster

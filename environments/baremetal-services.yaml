@@ -46,6 +46,7 @@ resource_registry:
   OS::TripleO::Services::NovaMigrationTarget: ../deployment/nova/nova-migration-target-container-puppet.yaml
   OS::TripleO::Services::NovaPlacement: ../deployment/nova/nova-placement-container-puppet.yaml
   OS::TripleO::Services::NovaScheduler: ../deployment/nova/nova-scheduler-container-puppet.yaml
+  OS::TripleO::Services::NovaSerialProxy: ../deployment/nova/nova-serial-proxy-container-puppet.yaml
   OS::TripleO::Services::NovaVncProxy: ../deployment/nova/nova-vnc-proxy-container-puppet.yaml
   OS::TripleO::Services::PankoApi: ../deployment/panko/panko-api-container-puppet.yaml
   OS::TripleO::Services::Qdr: OS::Heat::None

@@ -29,6 +29,7 @@
     - OS::TripleO::Services::NovaMetadata
     - OS::TripleO::Services::NovaPlacement
     - OS::TripleO::Services::NovaScheduler
+    - OS::TripleO::Services::NovaSerialProxy
     - OS::TripleO::Services::NovaVncProxy
     - OS::TripleO::Services::Ec2Api
     - OS::TripleO::Services::ContainersLogrotateCrond
